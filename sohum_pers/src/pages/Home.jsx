@@ -1,15 +1,64 @@
-import { ThemeToggle } from '../components/ThemeToggle'
 import { NavBar } from '../components/NavBar'
 import MagnetLines from '../components/MagnetLines'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
+    const [isDarkMode, setIsDarkMode] = useState(false)
+    const [isLargeScreen, setIsLargeScreen] = useState(false)
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+
+    useEffect(() => {
+        const checkTheme = () => {
+            const savedTheme = localStorage.getItem('theme')
+            const hasDarkClass = document.documentElement.classList.contains('dark')
+            setIsDarkMode(savedTheme === 'dark' || hasDarkClass)
+        }
+
+        const checkScreenSize = () => {
+            setIsLargeScreen(window.innerWidth >= 1024) // lg breakpoint
+        }
+
+        const checkMobileNav = () => {
+            // Check if mobile nav is open using data attribute
+            const isOpen = document.body.getAttribute('data-mobile-nav-open') === 'true'
+            setIsMobileNavOpen(isOpen)
+        }
+
+        checkTheme()
+        checkScreenSize()
+        checkMobileNav()
+        
+        // Listen for theme changes
+        const themeObserver = new MutationObserver(checkTheme)
+        themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        })
+
+        // Listen for mobile nav state changes
+        const navObserver = new MutationObserver(checkMobileNav)
+        navObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['data-mobile-nav-open']
+        })
+
+        // Listen for screen size changes
+        window.addEventListener('resize', checkScreenSize)
+
+        return () => {
+            themeObserver.disconnect()
+            navObserver.disconnect()
+            window.removeEventListener('resize', checkScreenSize)
+        }
+    }, [])
+
     return (
         <div className='min-h-screen bg-background text-foreground overflow-x-hidden'>
-            {/* theme toggle */}
-            <ThemeToggle />
-
             {/* navbar */}
             <NavBar />
+
+            {/* main content wrapper with blur effect */}
+            <div className={`transition-all duration-300 ${isMobileNavOpen ? 'blur-sm' : ''}`}>
 
             {/* hero section */}
             <section id="hero" className="min-h-screen flex items-center justify-center px-4">
@@ -36,24 +85,32 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Right side - MagnetLines (only in dark mode) */}
+                        {/* Right side - MagnetLines (dark mode) or Photo (light mode) */}
                         <div className="flex-1 flex justify-center lg:justify-end">
-                            <div className="hidden dark:block">
+                            {isDarkMode && isLargeScreen && (
                                 <MagnetLines
                                     rows={12}
                                     columns={12}
                                     containerSize="400px"
-                                    lineColor="#444444"
+                                    lineColor="#ffffff"
                                     lineWidth="2px"
                                     lineHeight="20px"
                                     baseAngle={0}
                                     className="rounded-full overflow-hidden"
                                     style={{ 
-                                        borderRadius: '50%',
-                                        background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 70%, transparent 100%)'
+                                        borderRadius: '50%'
                                     }}
                                 />
-                            </div>
+                            )}
+                            {!isDarkMode && isLargeScreen && (
+                                <div className="w-[400px] h-[400px] rounded-full overflow-hidden">
+                                    <img 
+                                        src="/1740859313825.jpeg" 
+                                        alt="Profile" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -233,12 +290,19 @@ export default function Home() {
                             </a>
                         </div>
                         
-                        <div className="pt-8">
-                            <a href="https://linkedin.com/in/sohumtrivedi" 
-                               className="inline-flex items-center space-x-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
-                                <span>LinkedIn</span>
-                                <span>→</span>
-                            </a>
+                        <div className="pt-8 space-y-4">
+                            <div className="flex justify-center space-x-4">
+                                <a href="https://linkedin.com/in/sohumtrivedi" 
+                                   className="inline-flex items-center space-x-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
+                                    <span>LinkedIn</span>
+                                    <span>→</span>
+                                </a>
+                                <a href="https://www.instagram.com/sohum.t/" 
+                                   className="inline-flex items-center space-x-2 border border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors">
+                                    <span>Instagram</span>
+                                    <span>→</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,6 +314,8 @@ export default function Home() {
                     © 2025 Sohum Trivedi. Built with React & Tailwind CSS.
                 </p>
             </footer>
+            
+            </div> {/* End of main content wrapper */}
         </div>
     )
 }

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Montserrat:wght@400;700&display=swap');
 
  @theme {
   --color-border: hsl(var(--border));
@@ -46,14 +47,14 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --background: 32 25% 95%;
+    --foreground: 106 17% 21%;
+    --card: 39 27% 85%;
+    --card-foreground: 106 17% 21%;
+    --popover: 39 27% 85%;
+    --popover-foreground: 106 17% 21%;
+    --primary: 107 23% 29%;
+    --primary-foreground: 32 25% 95%;
   }
 
   .dark {
@@ -76,8 +77,17 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply text-foreground transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Montserrat', Arial, sans-serif;
+  }
+
+  body:not(.dark) {
+    background: linear-gradient(120deg, #f8f5f2 0%, #e6e2d3 100%);
+  }
+
+  body.dark {
+    @apply bg-background;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -115,7 +125,14 @@
 @utility text-glow {
   @apply relative;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
 
+@utility text-warm-accent {
+  color: #b68973;
+}
+
+@utility text-moss-accent {
+  color: #4e944f;
 }
 
 
